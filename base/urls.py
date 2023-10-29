@@ -8,6 +8,7 @@ urlpatterns = [
     path('trucks/', views.getTrucks, name="trucks"),
     path('tasks/<str:pk>', views.getTask, name="task"),
     path('tasks/create/', views.createTask, name="create-task"),
+    path('tasks/edit/<str:pk>', views.editTask, name="edit-task"),
     path('drivers/add/', views.addDriver, name="add-driver"),
     path('trucks/add/', views.addTruck, name="add-truck"),
 ]

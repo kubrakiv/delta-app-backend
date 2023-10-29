@@ -53,6 +53,15 @@ def createTask(request):
     return Response(serializer.data)  
 
 
+@api_view(['PUT'])
+def editTask(request, pk):
+    task = Task.objects.get(id=pk)
+    serializer = TaskSerializer(instance=task, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+    return Response(serializer.data)  
+
+
 @api_view(['POST'])
 def addDriver(request):
     data = request.data
