@@ -1,0 +1,50 @@
+[
+    {
+        "model": "base.country",
+        "pk": 1,
+        "fields": {
+            "name": "Czech Republic",
+            "short_name": "CZ"
+        }
+    },
+    {
+        "model": "base.country",
+        "pk": 2,
+        "fields": {
+            "name": "Italy",
+            "short_name": "IT"
+        }
+    },
+    {
+        "model": "base.country",
+        "pk": 3,
+        "fields": {
+            "name": "Germany",
+            "short_name": "DE"
+        }
+    },
+    {
+        "model": "base.country",
+        "pk": 4,
+        "fields": {
+            "name": "Spain",
+            "short_name": "ES"
+        }
+    },
+    {
+        "model": "base.country",
+        "pk": 5,
+        "fields": {
+            "name": "Austria",
+            "short_name": "AT"
+        }
+    },
+    {
+        "model": "base.country",
+        "pk": 6,
+        "fields": {
+            "name": "Ukraine",
+            "short_name": "UK"
+        }
+    }
+]
