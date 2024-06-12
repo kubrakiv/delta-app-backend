@@ -109,6 +109,7 @@ def createOrder(request):
         if customer_manager_name
         else None
     )
+
     truck = Truck.objects.filter(plates=truck_plates).first() if truck_plates else None
     driver = (
         Driver.objects.filter(full_name=driver_name).first() if driver_name else None
@@ -132,13 +133,12 @@ def createOrder(request):
 
 @api_view(["PUT"])
 def editOrder(request, pk):
-    # order = Order.objects.get(id=pk)
     order = get_object_or_404(Order, id=pk)
-    print(order)
+    print("Request data: ", request.data)
     serializer = OrderSerializer(instance=order, data=request.data, partial=True)
     if serializer.is_valid():
         serializer.save()
-    print(serializer.data)
+    print("Serialized Data", serializer.data)
     return Response(serializer.data)
 
 

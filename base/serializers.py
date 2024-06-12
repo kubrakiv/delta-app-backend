@@ -42,6 +42,9 @@ class TruckSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "plates",
+            "model",
+            "vin_code",
+            "year",
             "trailer",
             "driver",
             "driver_details",
@@ -231,6 +234,8 @@ class TaskSerializer(serializers.ModelSerializer):
     order = serializers.CharField(
         source="order.number", allow_null=True, required=False
     )
+    order_number = serializers.CharField(source="order.order_number", allow_null=True, required=False)
+    customer = serializers.CharField(source="order.customer.name", allow_null=True, required=False)
     order_id = serializers.CharField(source="order.id", allow_null=True, required=False)
     point_details = PointSerializer(source="point", read_only=True)
 
@@ -247,6 +252,8 @@ class TaskSerializer(serializers.ModelSerializer):
             "truck",
             "type",
             "order",
+            "order_number",
+            "customer",
             "order_id",
             "point_details",
         ]
@@ -370,9 +377,8 @@ class OrderSerializer(serializers.ModelSerializer):
     # payment_type = serializers.SerializerMethodField()
     tasks = TaskSerializer(many=True, read_only=True)
     user = UserSerializer(many=False, read_only=True)
+    manager = CustomerManagerSerializer(many=False, read_only=True)
 
-    # customer_details = CustomerSerializer(source='customer', many=False, read_only=True)
-    # customer_manager_details = CustomerManagerSerializer(source='customer_manager', many=False, read_only=True)
     class Meta:
         model = Order
         fields = [
@@ -392,6 +398,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "loading_type",
             "trailer_type",
             "customer",
+            "manager",
             "customer_manager",
             "truck",
             "driver",
@@ -498,10 +505,11 @@ class OrderSerializer(serializers.ModelSerializer):
         driver_data = validated_data.pop("driver", None)
         truck_data = validated_data.pop("truck", None)
         customer_data = validated_data.pop("customer", None)
+        print("Customer Data:", customer_data)
         customer_manager_data = validated_data.pop("customer_manager", None)
+        print("Customer Manager Data:", customer_manager_data)
         platform_data = validated_data.pop("platform", None)
         payment_type_data = validated_data.pop("payment_type", None)
-
         instance.order_number = validated_data.get(
             "order_number", instance.order_number
         )

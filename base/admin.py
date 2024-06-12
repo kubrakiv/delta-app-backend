@@ -94,6 +94,6 @@ admin.site.register(Order, OrderAdmin)
 
 class TruckAdmin(admin.ModelAdmin):
     readonly_fields = ["id"]
-    list_display = ["id", "plates", "trailer", "driver_profile"]
+    list_display = ["id", "plates", "model", "trailer", "driver_profile"]
 
 admin.site.register(Truck, TruckAdmin)

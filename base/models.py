@@ -40,6 +40,7 @@ class Trailer(models.Model):
 
 class Truck(models.Model):
     plates = models.CharField(max_length=25)
+    model = models.CharField(max_length=50, null=True, blank=True)
     entry_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
     vin_code = models.CharField(max_length=50, null=True, blank=True)
@@ -347,13 +348,13 @@ class Task(models.Model):
         Point, related_name="tasks", on_delete=models.SET_NULL, blank=True, null=True
     )
     truck = models.ForeignKey(
-        Truck, related_name="tasks", on_delete=models.SET_NULL, null=True, blank=True
+        Truck, related_name="tasks", on_delete=models.CASCADE
     )
     driver = models.ForeignKey(
-        Driver, related_name="tasks", on_delete=models.SET_NULL, blank=True, null=True
+        Driver, related_name="tasks", on_delete=models.CASCADE
     )
     type = models.ForeignKey(
-        TaskType, related_name="tasks", on_delete=models.SET_NULL, blank=True, null=True
+        TaskType, related_name="tasks", on_delete=models.CASCADE
     )
     status = models.ForeignKey(
         TaskStatus,
