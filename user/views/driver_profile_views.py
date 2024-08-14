@@ -26,6 +26,12 @@ def getDriverProfiles(request):
     serializer = DriverProfileSerializer(drivers, many=True)
     return Response(serializer.data)
 
+@api_view(["GET"])
+def getDriverProfile(request, pk):
+    driver = DriverProfile.objects.get(user=pk)
+    serializer = DriverProfileSerializer(driver, many=False)
+    return Response(serializer.data)
+
 
 @api_view(["PUT"])
 def updateDriverProfile(request, pk):
@@ -50,4 +56,31 @@ def uploadDriverImage(request):
 
     # Return the URL of the uploaded image in the response
     return Response({"image_url": image_url}, status=status.HTTP_201_CREATED)
+
+@api_view(["POST"])
+def createDriverProfile(request):
+    data = request.data
+    driver = DriverProfile.objects.create(
+        user_id=data["user"],
+        image="default.jpg",
+        license_number=data["license_number"],
+        license_expiry_date=data["license_expiry_date"],
+        license_image="default.jpg",
+        truck_id=data["truck"],
+        truck_image="default.jpg",
+        truck_license_number=data["truck_license_number"],
+        truck_license_expiry_date=data["truck_license_expiry_date"],
+        truck_license_image="default.jpg",
+        is_verified=False
+    )
+
+    serializer = DriverProfileSerializer(driver, many=False)
+    return Response(serializer.data)
+
+@api_view(["DELETE"])
+def deleteDriverProfile(request, pk):
+    driver = DriverProfile.objects.get(user=pk)
+    driver.delete()
+    return Response("Driver Profile Deleted Successfully")
+
 

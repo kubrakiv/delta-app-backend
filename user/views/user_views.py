@@ -106,7 +106,6 @@ def registerUser(request):
 def updateUserProfile(request):
     user = request.user
     print("updateUserProfile", user)
-    serializer = UserSerializerWithToken(user, many=False)
     data = request.data
 
     role_name = data.get("role")
@@ -118,11 +117,39 @@ def updateUserProfile(request):
     user.username = data['email']
     user.email = data['email']
     user.phone_number = data['phone_number']
+    
     if data['password'] != '':
         user.password = make_password(data['password'])
 
     user.save()
 
+    serializer = UserSerializerWithToken(user, many=False)
+    return Response(serializer.data)
+
+@api_view(['PUT'])
+@permission_classes([AdminRolePermission])
+def updateUser(request, pk): # this function is for User Edit Page
+    data = request.data
+    print("updateUser", data)
+
+    role_name = data.get("role")
+    role = Role.objects.filter(name=role_name).first()
+
+    # Manipulations with user profile data
+    user = User.objects.get(id=pk)
+
+    user.role = role
+    user.first_name = data['first_name']
+    user.last_name = data['last_name']
+    user.username = data['email']
+    user.email = data['email']
+    user.phone_number = data['phone_number']
+    
+    user.is_staff = data['is_admin']
+
+    user.save()
+
+    serializer = UserSerializer(user, many=False)
     return Response(serializer.data)
 
 
@@ -150,30 +177,7 @@ def getUserById(request, pk):
     return Response(serializer.data)
 
 
-@api_view(['PUT'])
-@permission_classes([AdminRolePermission])
-def updateUser(request, pk): # this function is for User Edit Page
-    data = request.data
-    print("updateUser", data)
 
-    role_name = data.get("role")
-    role = Role.objects.filter(name=role_name).first()
-
-    # Manipulations with user profile data
-    user = User.objects.get(id=pk)
-
-    user.first_name = data['first_name']
-    user.last_name = data['last_name']
-    user.username = data['email']
-    user.email = data['email']
-    user.phone_number = data['phone_number']
-    user.role = role
-    user.is_staff = data['is_admin']
-
-    user.save()
-
-    serializer = UserSerializer(user, many=False)
-    return Response(serializer.data)
 
 
 @api_view(['DELETE'])

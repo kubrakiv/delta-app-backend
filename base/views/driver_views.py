@@ -13,7 +13,6 @@ from base.serializers import DriverSerializer
 
 # DRIVER VIEWS
 
-
 @api_view(["GET"])
 def getDrivers(request):
     drivers = Driver.objects.all()
