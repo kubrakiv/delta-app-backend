@@ -1,12 +1,13 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, re_path, include
 
 from django.conf import settings # it's access to variables in settings.py file
 from django.conf.urls.static import static # it's a specific function that connects urls
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-
+    # path("", TemplateView.as_view(template_name="index.html")),
     path("api/csrf-token/", include("base.urls.csrf_token_urls")),
     path("api/orders/", include("base.urls.order_urls")),
     path("api/tasks/", include("base.urls.task_urls")),
@@ -25,6 +26,9 @@ urlpatterns = [
     path("api/roles/", include("user.urls.role_urls")),
     path("api/users/", include("user.urls.user_urls")),
     path("api/driver-profiles/", include("user.urls.driver_profile_urls")),
+
+    # Catch-all URL pattern for React app
+    re_path(r'^.*$', TemplateView.as_view(template_name="index.html")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
