@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("user", "0004_driverprofile_birth_date_driverprofile_country_and_more"),
+        ("profile", "0004_driverprofile_birth_date_driverprofile_country_and_more"),
     ]
 
     operations = [

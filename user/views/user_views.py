@@ -13,7 +13,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from user.models import User, Role, AdminProfile, LogistProfile, DriverProfile
+from user.models import Profile, Role, AdminProfile, LogistProfile, DriverProfile
 from user.serializers import UserSerializer, UserSerializerWithToken, RoleSerializer
 
 from django.contrib.auth.hashers import make_password
@@ -85,7 +85,7 @@ def registerUser(request):
 	role = Role.objects.filter(name=role_name).first()
 
 	try:
-		user = User.objects.create(
+		profile = Profile.objects.create(
             role=role,
 			first_name=data['first_name'],
             last_name=data['last_name'],
@@ -94,36 +94,36 @@ def registerUser(request):
             phone_number=data['phone_number'],
 			password=make_password(data['password'])
 		)
-		serializer = UserSerializerWithToken(user, many=False)
+		serializer = UserSerializerWithToken(profile, many=False)
 		return Response(serializer.data)
 	except:
-		message = {'detail': 'User with this email already exists'}
+		message = {'detail': 'Profile with this email already exists'}
 		return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def updateUserProfile(request):
-    user = request.user
-    print("updateUserProfile", user)
+    profile = request.user
+    print("updateUserProfile", profile)
     data = request.data
 
     role_name = data.get("role")
     role = Role.objects.filter(name=role_name).first()
     
-    user.role = role
-    user.first_name = data['first_name']
-    user.last_name = data['last_name']
-    user.username = data['email']
-    user.email = data['email']
-    user.phone_number = data['phone_number']
+    profile.role = role
+    profile.first_name = data['first_name']
+    profile.last_name = data['last_name']
+    profile.username = data['email']
+    profile.email = data['email']
+    profile.phone_number = data['phone_number']
     
     if data['password'] != '':
-        user.password = make_password(data['password'])
+        profile.password = make_password(data['password'])
 
-    user.save()
+    profile.save()
 
-    serializer = UserSerializerWithToken(user, many=False)
+    serializer = UserSerializerWithToken(profile, many=False)
     return Response(serializer.data)
 
 @api_view(['PUT'])
@@ -136,53 +136,50 @@ def updateUser(request, pk): # this function is for User Edit Page
     role = Role.objects.filter(name=role_name).first()
 
     # Manipulations with user profile data
-    user = User.objects.get(id=pk)
+    profile = Profile.objects.get(id=pk)
 
-    user.role = role
-    user.first_name = data['first_name']
-    user.last_name = data['last_name']
-    user.username = data['email']
-    user.email = data['email']
-    user.phone_number = data['phone_number']
+    profile.role = role
+    profile.first_name = data['first_name']
+    profile.last_name = data['last_name']
+    profile.username = data['email']
+    profile.email = data['email']
+    profile.phone_number = data['phone_number']
     
-    user.is_staff = data['is_admin']
+    profile.is_staff = data['is_admin']
 
-    user.save()
+    profile.save()
 
-    serializer = UserSerializer(user, many=False)
+    serializer = UserSerializer(profile, many=False)
     return Response(serializer.data)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getUserProfile(request):
-    user = request.user
-    serializer = UserSerializer(user, many=False)
+    profile = request.user
+    serializer = UserSerializer(profile, many=False)
     return Response(serializer.data)
 
 
 @api_view(['GET'])
 @permission_classes([AdminRolePermission])
 def getUsers(request):
-    users = User.objects.all()
-    serializer = UserSerializer(users, many=True)
+    profiles = Profile.objects.all()
+    serializer = UserSerializer(profiles, many=True)
     return Response(serializer.data)
 
 
 @api_view(['GET'])
 @permission_classes([AdminRolePermission])
 def getUserById(request, pk):
-    user = User.objects.get(id=pk)
-    serializer = UserSerializer(user, many=False)
+    profile = Profile.objects.get(id=pk)
+    serializer = UserSerializer(profile, many=False)
     return Response(serializer.data)
-
-
-
 
 
 @api_view(['DELETE'])
 @permission_classes([AdminRolePermission])
 def deleteUser(request, pk):
-    userForDeletion = User.objects.get(id=pk)
-    userForDeletion.delete()
-    return Response('User was deleted')
+    profileForDeletion = Profile.objects.get(id=pk)
+    profileForDeletion.delete()
+    return Response('Profile was deleted')

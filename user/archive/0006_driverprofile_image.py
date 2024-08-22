@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("user", "0005_driverprofile_license_number_and_more"),
+        ("profile", "0005_driverprofile_license_number_and_more"),
     ]
 
     operations = [

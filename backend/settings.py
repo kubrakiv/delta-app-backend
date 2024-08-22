@@ -27,9 +27,17 @@ SECRET_KEY = "django-insecure-#jp=^n!imo1h_l2w27!)qiv=4h27&svjau+a!bg8=#&n#x1+z5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "192.168.0.6"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", 
+                 "192.168.0.6", "195.201.96.160", 
+                 "deltalogistics.cz", "www.deltalogistics.cz"]
 
-CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1", "http://localhost", "http://192.168.0.6"]
+CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1", 
+                        "http://localhost", 
+                        "http://192.168.0.6", 
+                        "https://deltalogistics.cz", 
+                        "https://195.201.96.160", 
+                        "http://deltalogistics.cz", 
+                        "http://195.201.96.160"]
 
 
 # Application definition
@@ -140,6 +148,19 @@ DATABASES = {
 }
 
 
+###  нада подключить джангу тут
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2', 
+#         'NAME': 'deltabase',
+#         'USER': 'delta',
+#         'PASSWORD': 'superpass',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
+
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -191,4 +212,15 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-AUTH_USER_MODEL = "user.User"
+AUTH_USER_MODEL = "user.Profile"
+
+# HTTPS settings
+SESSION_COOKIE_SECURE=True
+CSRF_COOKIE_SECURE=True
+SECURE_SSL_REDIRECT=True
+
+# HSTS settings
+SECURE_HSTS_SECONDS=31536000 # 1 year
+SECURE_HSTS_PRELOAD=True
+SECURE_HSTS_INCLUDE_SUBDOMAINS=True
+
