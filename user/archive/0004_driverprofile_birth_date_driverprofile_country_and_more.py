@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("user", "0003_user_phone_number"),
+        ("profile", "0003_user_phone_number"),
     ]
 
     operations = [

@@ -17,7 +17,7 @@ from base.models import (
     Platform,
     PaymentType
 )
-from user.models import User
+from user.models import Profile
 from base.serializers import (
     TaskSerializer,
     OrderSerializer,
@@ -98,7 +98,7 @@ def createOrder(request):
     platform_name = data.get("platform")
     payment_type_name = data.get("payment_type")
 
-    user = User.objects.get(id=user_id) if user_id else None
+    user = Profile.objects.get(id=user_id) if user_id else None
     platform = Platform.objects.filter(name=platform_name).first() if platform_name else None
     payment_type = PaymentType.objects.filter(name=payment_type_name).first() if payment_type_name else None
     customer = (

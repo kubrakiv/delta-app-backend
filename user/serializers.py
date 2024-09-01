@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Role, DriverProfile
+from .models import Profile, Role, DriverProfile
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
@@ -14,7 +14,7 @@ class DriverProfileSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = DriverProfile
-        fields = ["user", "first_name", "last_name", "middle_name", "full_name", "email", "phone_number", "position", "license_series", "license_number", "birth_date", "started_work", "finished_work", "country", "image", "trucks"]
+        fields = ["profile", "first_name", "last_name", "middle_name", "full_name", "email", "phone_number", "position", "license_series", "license_number", "birth_date", "started_work", "finished_work", "country", "image", "trucks"]
 
 
 
@@ -25,7 +25,7 @@ class UserSerializer(serializers.ModelSerializer):
     # phone_number = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
-        model = User
+        model = Profile
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'full_name', 'is_admin', 'role', 'phone_number']
 
     def get_full_name(self, obj):
@@ -47,7 +47,7 @@ class UserSerializerWithToken(UserSerializer):
     token = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
-        model = User
+        model = Profile
         fields = ['id', 'username', 'email', 'phone_number', 'full_name', 'is_admin', 'role', 'token']
 
     def get_token(self, obj):

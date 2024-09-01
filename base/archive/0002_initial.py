@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name="order",
-            name="user",
+            name="profile",
             field=models.ForeignKey(
                 blank=True,
                 null=True,

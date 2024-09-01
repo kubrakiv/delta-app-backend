@@ -6,7 +6,7 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("user", "0004_driverprofile_birth_date_driverprofile_country_and_more"),
+        ("profile", "0004_driverprofile_birth_date_driverprofile_country_and_more"),
         ("base", "0007_order_market_price"),
     ]
 

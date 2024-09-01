@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="User",
+            name="Profile",
             fields=[
                 (
                     "id",
@@ -103,16 +103,16 @@ class Migration(migrations.Migration):
                     models.ManyToManyField(
                         blank=True,
                         help_text="The groups this user belongs to. A user will get all permissions granted to each of their groups.",
-                        related_name="user_set",
-                        related_query_name="user",
+                        related_name="profile_set",
+                        related_query_name="profile",
                         to="auth.group",
                         verbose_name="groups",
                     ),
                 ),
             ],
             options={
-                "verbose_name": "user",
-                "verbose_name_plural": "users",
+                "verbose_name": "profile",
+                "verbose_name_plural": "profiles",
                 "abstract": False,
             },
             managers=[
@@ -138,7 +138,7 @@ class Migration(migrations.Migration):
             name="AdminProfile",
             fields=[
                 (
-                    "user",
+                    "profile",
                     models.OneToOneField(
                         on_delete=django.db.models.deletion.CASCADE,
                         primary_key=True,
@@ -157,7 +157,7 @@ class Migration(migrations.Migration):
             name="DriverProfile",
             fields=[
                 (
-                    "user",
+                    "profile",
                     models.OneToOneField(
                         on_delete=django.db.models.deletion.CASCADE,
                         primary_key=True,
@@ -176,7 +176,7 @@ class Migration(migrations.Migration):
             name="LogistProfile",
             fields=[
                 (
-                    "user",
+                    "profile",
                     models.OneToOneField(
                         on_delete=django.db.models.deletion.CASCADE,
                         primary_key=True,
@@ -192,24 +192,24 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.AddField(
-            model_name="user",
+            model_name="profile",
             name="role",
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name="users",
+                related_name="profiles",
                 to="user.role",
             ),
         ),
         migrations.AddField(
-            model_name="user",
-            name="user_permissions",
+            model_name="profile",
+            name="profile_permissions",
             field=models.ManyToManyField(
                 blank=True,
                 help_text="Specific permissions for this user.",
-                related_name="user_set",
-                related_query_name="user",
+                related_name="profile_set",
+                related_query_name="profile",
                 to="auth.permission",
-                verbose_name="user permissions",
+                verbose_name="profile permissions",
             ),
         ),
     ]
