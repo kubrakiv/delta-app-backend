@@ -195,12 +195,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = "static/"
+# STATIC_URL = "static/"
+STATIC_URL = "/assets/"
+
 MEDIA_URL = "/order_files/"
 
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
-    BASE_DIR / 'delta-frontend/build/static'
+    BASE_DIR / 'delta-frontend/build/assets/',
 ]
 
 MEDIA_ROOT = 'static/'
@@ -215,12 +217,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "user.Profile"
 
 # HTTPS settings
-SESSION_COOKIE_SECURE=True
-CSRF_COOKIE_SECURE=True
-SECURE_SSL_REDIRECT=True
+# SESSION_COOKIE_SECURE=True
+# CSRF_COOKIE_SECURE=True
+# SECURE_SSL_REDIRECT=True
 
-# HSTS settings
-SECURE_HSTS_SECONDS=31536000 # 1 year
-SECURE_HSTS_PRELOAD=True
-SECURE_HSTS_INCLUDE_SUBDOMAINS=True
+# # HSTS settings
+# SECURE_HSTS_SECONDS=31536000 # 1 year
+# SECURE_HSTS_PRELOAD=True
+# SECURE_HSTS_INCLUDE_SUBDOMAINS=True
 
