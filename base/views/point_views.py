@@ -63,10 +63,29 @@ def createPoint(request):
 @api_view(["PUT"])
 def editPoint(request, pk):
     point = get_object_or_404(Point, id=pk)
-    serializer = PointSerializer(instance=point, data=request.data, partial=True)
+    data = request.data
+
+    # Extract country from request data
+    country_name = data.get("country")
+    country = Country.objects.filter(name=country_name).first()
+
+    # if country:
+    #     data["country"] = country.id  # Set country ID in the data for serializer
+    # else:
+    #     return Response({"error": "Country not found"}, status=400)
+
+    # Debugging: print the updated data before passing to serializer
+    print("Updated Request Data: ", data)
+
+    serializer = PointSerializer(instance=point, data=data, partial=True)
+    
     if serializer.is_valid():
         serializer.save()
-    return Response(serializer.data)
+        return Response(serializer.data)
+    else:
+        # Debugging: print serializer errors
+        print("Serializer Errors: ", serializer.errors)
+        return Response(serializer.errors, status=400)
 
 
 @api_view(["DELETE"])

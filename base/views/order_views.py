@@ -9,7 +9,7 @@ from rest_framework import status
 
 from base.models import (
     Task,
-    Driver,
+    DriverProfile,
     Truck,
     Order,
     Customer,
@@ -112,7 +112,7 @@ def createOrder(request):
 
     truck = Truck.objects.filter(plates=truck_plates).first() if truck_plates else None
     driver = (
-        Driver.objects.filter(full_name=driver_name).first() if driver_name else None
+        DriverProfile.objects.filter(full_name=driver_name).first() if driver_name else None
     )
 
     data["user"] = user

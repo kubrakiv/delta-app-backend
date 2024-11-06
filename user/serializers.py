@@ -9,7 +9,6 @@ class TruckField(serializers.RelatedField):
 
 
 class DriverProfileSerializer(serializers.ModelSerializer):
-    # trucks = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     trucks = TruckField(many=True, read_only=True)
     
     class Meta:
@@ -22,7 +21,6 @@ class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField(read_only=True)
     is_admin = serializers.SerializerMethodField(read_only=True)
     role = serializers.CharField(source='role.name', required=False, allow_null=True)
-    # phone_number = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Profile
@@ -36,11 +34,6 @@ class UserSerializer(serializers.ModelSerializer):
     
     def get_is_admin(self, obj):
         return obj.is_staff
-
-    # def get_phone_number(self, obj):
-    #     if hasattr(obj, 'adminprofile'):
-    #         return obj.adminprofile.phone_number
-    #     return None
 
 
 class UserSerializerWithToken(UserSerializer):

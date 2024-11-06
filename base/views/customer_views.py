@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
-from base.models import Customer
+from base.models import Customer, PaymentType
 from base.serializers import CustomerSerializer
 
 
@@ -15,4 +15,52 @@ def getCustomers(request):
     customers = Customer.objects.all()
     serializer = CustomerSerializer(customers, many=True)
     return Response(serializer.data)
+
+
+@api_view(["POST"])
+def createCustomer(request):
+
+    try: 
+        data = request.data
+        payment_type_name = data["payment_type"]
+        payment_type = PaymentType.objects.filter(name=payment_type_name).first() if payment_type_name else None
+
+        customer = Customer.objects.create(
+            name=data["name"],
+            nip_number=data["nip_number"],
+            payment_period=data["payment_period"],
+            payment_type=payment_type,
+            email=data["email"],
+            website=data["website"],
+            post_address=data["post_address"],
+        )
+        serializer = CustomerSerializer(customer, many=False)
+        return Response(serializer.data)
+    except Exception as e:
+        return Response({"error": str(e)})
+
+@api_view(["DELETE"])
+def deleteCustomer(request, pk):
+    try:
+        customer = Customer.objects.get(id=pk)
+    except Customer.DoesNotExist:
+        return Response("Customer does not exist", status=status.HTTP_404_NOT_FOUND)
     
+    # Serialize the customer before deleting
+    serializer = CustomerSerializer(customer, many=False)
+    customer.delete()
+
+    return Response({"message": "Customer deleted"})
+
+@api_view(["PUT"])
+def updateCustomer(request, pk):
+    customer = Customer.objects.get(id=pk)
+    
+    serializer = CustomerSerializer(instance=customer, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+
+    return Response(serializer.data)
+
+
+

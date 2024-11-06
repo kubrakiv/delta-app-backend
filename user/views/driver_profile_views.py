@@ -19,6 +19,8 @@ from user.serializers import DriverProfileSerializer
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
 
+# need to be careful with user vs profile instances. 
+# It started when I changed the user model to profile model
 
 @api_view(["GET"])
 def getDriverProfiles(request):
@@ -28,18 +30,23 @@ def getDriverProfiles(request):
 
 @api_view(["GET"])
 def getDriverProfile(request, pk):
-    driver = DriverProfile.objects.get(user=pk)
+    driver = DriverProfile.objects.get(profile=pk)
     serializer = DriverProfileSerializer(driver, many=False)
     return Response(serializer.data)
 
 
 @api_view(["PUT"])
 def updateDriverProfile(request, pk):
-    driver = DriverProfile.objects.get(user=pk)
+    driver = DriverProfile.objects.get(profile__id=pk)
+    print("Driver to Update: ", driver)
+    print("Request Data: ", request.data)
     serializer = DriverProfileSerializer(instance=driver, data=request.data, partial=True)
     if serializer.is_valid():
         serializer.save()
-    return Response(serializer.data)
+        print("Saved data:", serializer.data)
+    else:
+        print("Serializer errors:", serializer.errors)
+    return Response(serializer.data if serializer.is_valid() else serializer.errors, status=200 if serializer.is_valid() else 400)
 
 
 @api_view(["POST"])
@@ -47,7 +54,7 @@ def uploadDriverImage(request):
     data = request.data
 
     driver_id = data["driver_id"]
-    driver = DriverProfile.objects.get(user=driver_id)
+    driver = DriverProfile.objects.get(profile=driver_id)
     driver.image = request.FILES.get("image")
     driver.save()
 
@@ -61,7 +68,7 @@ def uploadDriverImage(request):
 def createDriverProfile(request):
     data = request.data
     driver = DriverProfile.objects.create(
-        user_id=data["user"],
+        profile_id=data["profile"],
         image="default.jpg",
         license_number=data["license_number"],
         license_expiry_date=data["license_expiry_date"],
@@ -79,7 +86,7 @@ def createDriverProfile(request):
 
 @api_view(["DELETE"])
 def deleteDriverProfile(request, pk):
-    driver = DriverProfile.objects.get(user=pk)
+    driver = DriverProfile.objects.get(profile=pk)
     driver.delete()
     return Response("Driver Profile Deleted Successfully")
 

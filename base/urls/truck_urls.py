@@ -5,5 +5,8 @@ from base.views import truck_views as views
 
 urlpatterns = [
     path("", views.getTrucks, name="trucks"),
-    path("add/", views.addTruck, name="add-truck"),
+    path("create/", views.createTruck, name="create-truck"),
+    path("delete/<str:pk>/", views.deleteTruck, name="delete-truck"),
+    path("update/<int:pk>/", views.updateTruck, name="update-truck"),
+    path("update-trailer-driver/<int:pk>/", views.updateTruckTrailerAndDriver, name="update-truck-trailer-driver"),
 ]
