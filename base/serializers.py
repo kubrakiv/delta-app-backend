@@ -2,8 +2,9 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import (
     Task,
-    Driver,
+    TaskStatus,
     Truck,
+    Trailer,
     Customer,
     Order,
     TaskType,
@@ -25,32 +26,46 @@ import os
 import unicodedata
 
 
-class DriverSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Driver
-        fields = "__all__"
 
+class TrailerSerializer(serializers.ModelSerializer):
+    truck = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Trailer
+        fields = ["id", "plates", "brand", "entry_date", "end_date", "price", "entry_mileage", "vin_code", "year", "truck"]
+
+    def get_truck(self, obj):
+        truck = obj.trucks.first()
+        return truck.plates if truck else None
+    
 
 class TruckSerializer(serializers.ModelSerializer):
     trailer = serializers.CharField(
         source="trailer.plates", required=False, allow_null=True
     )
-    driver = serializers.CharField(source="driver_profile")
-    driver_details = DriverProfileSerializer(source="driver_profile", many=False, read_only=True)
+    # driver = serializers.CharField()
+    driver_details = DriverProfileSerializer(source="driver", many=False, read_only=True)
+    trailer_details = TrailerSerializer(source="trailer", many=False, read_only=True)
     class Meta:
         model = Truck
         fields = [
             "id",
             "plates",
+            "brand",
             "model",
             "vin_code",
             "year",
+            "entry_date",
+            "end_date",
+            "entry_mileage",
+            "price",
             "trailer",
             "driver",
             "driver_details",
+            "trailer_details",
         ]
 
-
+    
 class DriverAssignmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = DriverAssignment
@@ -85,15 +100,6 @@ class FileTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = FileType
         fields = "__all__"
-
-
-# class OrderFileSerializer(serializers.ModelSerializer):
-#     file_type = serializers.CharField(source="file_type.name", required=False, allow_null=True)
-#     order = serializers.CharField(source="order.number", required=False, allow_null=True)
-
-#     class Meta:
-#         model = OrderFile
-#         fields = ["id", "file", "file_type", "uploaded_at", "order"]
 
 
 class OrderFileSerializer(serializers.ModelSerializer):
@@ -197,7 +203,7 @@ class CustomerManagerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomerManager
-        fields = ["full_name", "position", "phone", "email", "created_at", "customer"]
+        fields = ["id", "full_name", "position", "phone", "email", "created_at", "customer"]
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -271,7 +277,7 @@ class TaskSerializer(serializers.ModelSerializer):
 
         # Creating or getting instances for foreign keys
         driver_instance = (
-            Driver.objects.get_or_create(full_name=driver_data["full_name"])[0]
+            DriverProfile.objects.get_or_create(full_name=driver_data["full_name"])[0]
             if driver_data
             else None
         )
@@ -319,7 +325,7 @@ class TaskSerializer(serializers.ModelSerializer):
         instance.end_time = validated_data.get("end_time", instance.end_time)
 
         if driver_data:
-            driver_instance, _ = Driver.objects.get_or_create(
+            driver_instance, _ = DriverProfile.objects.get_or_create(
                 full_name=driver_data["full_name"]
             )
             instance.driver = driver_instance
@@ -420,7 +426,7 @@ class OrderSerializer(serializers.ModelSerializer):
     #     return obj.payment_type
 
     def get_loading_address(self, obj):
-        task = obj.tasks.filter(type__name="Завантаження").first()
+        task = obj.tasks.filter(type__name="Loading").first()
 
         if task and task.title:
             loading_address = task.title
@@ -430,7 +436,7 @@ class OrderSerializer(serializers.ModelSerializer):
         return None
 
     def get_unloading_address(self, obj):
-        task = obj.tasks.filter(type__name="Розвантаження").first()
+        task = obj.tasks.filter(type__name="Unloading").first()
 
         if task and task.title:
             unloading_address = task.title
@@ -438,7 +444,7 @@ class OrderSerializer(serializers.ModelSerializer):
         return None
 
     def get_loading_start_date(self, obj):
-        task = obj.tasks.filter(type__name="Завантаження").first()
+        task = obj.tasks.filter(type__name="Loading").first()
 
         if task and task.start_date:
             loading_start_date = task.start_date
@@ -446,7 +452,7 @@ class OrderSerializer(serializers.ModelSerializer):
         return None
     
     def get_loading_end_date(self, obj):
-        task = obj.tasks.filter(type__name="Завантаження").first()
+        task = obj.tasks.filter(type__name="Loading").first()
 
         if task and task.end_date:
             loading_end_date = task.end_date
@@ -454,7 +460,7 @@ class OrderSerializer(serializers.ModelSerializer):
         return None
 
     def get_loading_start_time(self, obj):
-        task = obj.tasks.filter(type__name="Завантаження").first()
+        task = obj.tasks.filter(type__name="Loading").first()
 
         if task and task.start_time:
             loading_start_time = task.start_time
@@ -462,7 +468,7 @@ class OrderSerializer(serializers.ModelSerializer):
         return None
 
     def get_loading_end_time(self, obj):
-        task = obj.tasks.filter(type__name="Завантаження").first()
+        task = obj.tasks.filter(type__name="Loading").first()
 
         if task and task.end_time:
             loading_end_time = task.end_time
@@ -470,7 +476,7 @@ class OrderSerializer(serializers.ModelSerializer):
         return None
 
     def get_unloading_start_date(self, obj):
-        task = obj.tasks.filter(type__name="Розвантаження").last()
+        task = obj.tasks.filter(type__name="Unloading").last()
 
         if task and task.start_date:
             unloading_start_date = task.start_date
@@ -478,7 +484,7 @@ class OrderSerializer(serializers.ModelSerializer):
         return None
 
     def get_unloading_end_date(self, obj):
-        task = obj.tasks.filter(type__name="Розвантаження").last()
+        task = obj.tasks.filter(type__name="Unloading").last()
 
         if task and task.end_date:
             unloading_end_date = task.end_date
@@ -486,7 +492,7 @@ class OrderSerializer(serializers.ModelSerializer):
         return None
 
     def get_unloading_start_time(self, obj):
-        task = obj.tasks.filter(type__name="Розвантаження").last()
+        task = obj.tasks.filter(type__name="Unloading").last()
 
         if task and task.start_time:
             unloading_start_time = task.start_time
@@ -494,7 +500,7 @@ class OrderSerializer(serializers.ModelSerializer):
         return None
     
     def get_unloading_end_time(self, obj):
-        task = obj.tasks.filter(type__name="Розвантаження").last()
+        task = obj.tasks.filter(type__name="Unloading").last()
 
         if task and task.end_time:
             unloading_end_time = task.end_time
@@ -532,7 +538,7 @@ class OrderSerializer(serializers.ModelSerializer):
         )
 
         if driver_data:
-            driver_instance, _ = Driver.objects.get_or_create(
+            driver_instance, _ = DriverProfile.objects.get_or_create(
                 full_name=driver_data["full_name"]
             )
             instance.driver = driver_instance

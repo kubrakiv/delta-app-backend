@@ -13,8 +13,9 @@ urlpatterns = [
     path("api/tasks/", include("base.urls.task_urls")),
     path("api/points/", include("base.urls.point_urls")),
     path("api/trucks/", include("base.urls.truck_urls")),
-    path("api/drivers/", include("base.urls.driver_urls")),
+    path("api/trailers/", include("base.urls.trailer_urls")),
     path("api/customers/", include("base.urls.customer_urls")),
+    path("api/customer-managers/", include("base.urls.customer_manager_urls")),
     path("api/point-companies/", include("base.urls.point_company_urls")),
     path("api/countries/", include("base.urls.country_urls")),
     path("api/documents/", include("base.urls.upload_documents_urls")),
@@ -28,7 +29,10 @@ urlpatterns = [
     path("api/driver-profiles/", include("user.urls.driver_profile_urls")),
 
     # Catch-all URL pattern for React app
-    re_path(r'^.*$', TemplateView.as_view(template_name="index.html")),
+    # re_path(r'^.*$', TemplateView.as_view(template_name="index.html")),
 ]
 
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

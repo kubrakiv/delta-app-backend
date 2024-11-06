@@ -9,7 +9,7 @@ from rest_framework import status
 
 from base.models import (
     Task,
-    Driver,
+    DriverProfile,
     Truck,
     Order,
     TaskType,
@@ -46,11 +46,11 @@ def createTask(request):
         driver_name = data.get("driver")
         truck_plate = data.get("truck")
         order_number = data.get("order")
-        type = data.get("type")
+        task_type_name = data.get("type")
 
-        driver = Driver.objects.filter(full_name=driver_name).first()
+        driver = DriverProfile.objects.filter(full_name=driver_name).first()
         truck = Truck.objects.filter(plates=truck_plate).first()
-        type = TaskType.objects.filter(name=type).first()
+        task_type = TaskType.objects.filter(name=task_type_name).first()
         order = Order.objects.filter(number=order_number).first()
         point = Point.objects.filter(id=data.get("point_details", {}).get("id")).first()
 
@@ -63,7 +63,7 @@ def createTask(request):
             start_time=data.get("start_time"),
             truck=truck,
             driver=driver,
-            type=type,
+            type=task_type,
             order=order,
             point=point,
         )

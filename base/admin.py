@@ -4,7 +4,6 @@ from .models import (
     PointCompany,
     Truck,
     Trailer,
-    Driver,
     Task,
     Customer,
     Order,
@@ -19,15 +18,12 @@ from .models import (
     Platform,
     DriverAssignment,
     TrailerAssignment,
-
 )
 
 # Register your models here.
 admin.site.register(Country)
 admin.site.register(PointCompany)
-
 admin.site.register(Trailer)
-admin.site.register(Driver)
 admin.site.register(PaymentType)
 admin.site.register(Customer)
 admin.site.register(CustomerManager)
@@ -94,6 +90,6 @@ admin.site.register(Order, OrderAdmin)
 
 class TruckAdmin(admin.ModelAdmin):
     readonly_fields = ["id"]
-    list_display = ["id", "plates", "model", "trailer", "driver_profile"]
+    list_display = ["id", "plates", "model", "trailer", "driver"]
 
 admin.site.register(Truck, TruckAdmin)

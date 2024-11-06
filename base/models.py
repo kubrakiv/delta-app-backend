@@ -27,12 +27,13 @@ class PointCompany(models.Model):
 
 class Trailer(models.Model):
     plates = models.CharField(max_length=25)
+    brand = models.CharField(max_length=50, null=True, blank=True)
     entry_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
     vin_code = models.CharField(max_length=50, null=True, blank=True)
     year = models.IntegerField(null=True, blank=True)
     entry_mileage = models.CharField(max_length=50, null=True, blank=True)
-    price = models.IntegerField(null=True, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     def __str__(self):
         return f"Trailer plates: {self.plates}"
@@ -40,15 +41,16 @@ class Trailer(models.Model):
 
 class Truck(models.Model):
     plates = models.CharField(max_length=25)
+    brand = models.CharField(max_length=50, null=True, blank=True)
     model = models.CharField(max_length=50, null=True, blank=True)
     entry_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
     vin_code = models.CharField(max_length=50, null=True, blank=True)
     year = models.IntegerField(null=True, blank=True)
     entry_mileage = models.CharField(max_length=50, null=True, blank=True)
-    price = models.IntegerField(null=True, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     
-    driver_profile = models.ForeignKey(
+    driver = models.ForeignKey(
         DriverProfile,
         related_name="trucks",
         on_delete=models.SET_NULL,
@@ -67,14 +69,6 @@ class Truck(models.Model):
         return f"Truck plates: {self.plates}"
 
 
-class Driver(models.Model):
-    full_name = models.CharField(max_length=255)
-    phone = models.CharField(max_length=20, null=True, blank=True)
-
-    def __str__(self):
-        return self.full_name
-
-
 class DriverAssignment(models.Model):
     truck = models.ForeignKey(Truck, on_delete=models.CASCADE)
     driver_profile = models.ForeignKey(DriverProfile, on_delete=models.CASCADE)
@@ -83,7 +77,9 @@ class DriverAssignment(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.driver_profile.full_name} assigned to {self.truck.plates} from {self.start_date} to {self.finished_date if self.finished_date else 'present'}"
+        start_date_str = self.start_date.strftime("%Y-%m-%d %H:%M") if self.start_date else "N/A"
+        end_date_str = self.end_date.strftime("%Y-%m-%d %H:%M") if self.end_date else "present"
+        return f"{self.driver_profile.full_name} assigned to {self.truck.plates} from {start_date_str} to {end_date_str}"
 
 
 class TrailerAssignment(models.Model):
@@ -94,7 +90,9 @@ class TrailerAssignment(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"{self.trailer.plates} assigned to {self.truck.plates} from {self.start_date} to {self.finished_date if self.finished_date else 'present'}"
+        start_date_str = self.start_date.strftime("%Y-%m-%d %H:%M") if self.start_date else "N/A"
+        end_date_str = self.end_date.strftime("%Y-%m-%d %H:%M") if self.end_date else "present"
+        return f"{self.trailer.plates} assigned to {self.truck.plates} from {start_date_str} to {end_date_str}"
 
 
 class PaymentType(models.Model):
@@ -139,9 +137,7 @@ class CustomerManager(models.Model):
     customer = models.ForeignKey(
         Customer,
         related_name="managers",
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
+        on_delete=models.CASCADE,
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -248,7 +244,7 @@ class Order(models.Model):
         Truck, related_name="orders", on_delete=models.SET_NULL, null=True, blank=True
     )
     driver = models.ForeignKey(
-        Driver, related_name="orders", on_delete=models.SET_NULL, null=True, blank=True
+        DriverProfile, related_name="orders", on_delete=models.SET_NULL, null=True, blank=True
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -351,7 +347,7 @@ class Task(models.Model):
         Truck, related_name="tasks", on_delete=models.CASCADE
     )
     driver = models.ForeignKey(
-        Driver, related_name="tasks", on_delete=models.CASCADE
+        DriverProfile, related_name="tasks", on_delete=models.CASCADE
     )
     type = models.ForeignKey(
         TaskType, related_name="tasks", on_delete=models.CASCADE
