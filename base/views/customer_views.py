@@ -22,14 +22,11 @@ def createCustomer(request):
 
     try: 
         data = request.data
-        payment_type_name = data["payment_type"]
-        payment_type = PaymentType.objects.filter(name=payment_type_name).first() if payment_type_name else None
-
+        
         customer = Customer.objects.create(
             name=data["name"],
             nip_number=data["nip_number"],
-            payment_period=data["payment_period"],
-            payment_type=payment_type,
+            vat_number=data["vat_number"],
             email=data["email"],
             website=data["website"],
             post_address=data["post_address"],
