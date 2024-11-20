@@ -71,3 +71,13 @@ def uploadDocuments(request):
       return Response({'message': 'Files uploaded successfully'}, status=status.HTTP_201_CREATED)
   else:
       return Response({'error': 'Only POST method allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+@api_view(["DELETE"])
+def deleteDocument(request, pk):
+  try:
+    order_file = OrderFile.objects.get(pk=pk)
+    order_file.delete()
+    return Response({'message': 'Document deleted successfully'}, status=status.HTTP_200_OK)
+  except OrderFile.DoesNotExist:
+    return Response({"error": 'Document not found'}, status=status.HTTP_404_NOT_FOUND)

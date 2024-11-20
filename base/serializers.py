@@ -17,6 +17,10 @@ from .models import (
     Platform,
     PaymentType,
     DriverAssignment,
+    Currency,
+    CompanyBank,
+    Company,
+    Invoice,
 )
 from user.models import (
     DriverProfile
@@ -25,6 +29,19 @@ from user.serializers import UserSerializer, DriverProfileSerializer
 import os
 import unicodedata
 
+
+class CompanyBankSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CompanyBank
+        fields = "__all__"
+
+
+class CompanySerializer(serializers.ModelSerializer):
+    bank = CompanyBankSerializer(source="bank.name", many=False, read_only=True)
+
+    class Meta:
+        model = Company
+        fields = "__all__"
 
 
 class TrailerSerializer(serializers.ModelSerializer):
@@ -105,11 +122,12 @@ class FileTypeSerializer(serializers.ModelSerializer):
 class OrderFileSerializer(serializers.ModelSerializer):
     file_type = serializers.CharField(source="file_type.name", required=False, allow_null=True)
     order = serializers.CharField(source="order.number", required=False, allow_null=True)
+    order_id = serializers.CharField(source="order.id", required=False, allow_null=True)
     file_name = serializers.SerializerMethodField()  # Add a SerializerMethodField for the modified file name
 
     class Meta:
         model = OrderFile
-        fields = ["id", "file", "file_type", "uploaded_at", "order", "file_name"]  # Include the new field
+        fields = ["id", "file", "file_type", "uploaded_at", "order", "order_id", "file_name"]  # Include the new field
 
     def get_file_name(self, obj):
         # Extract the filename from the file path
@@ -215,10 +233,9 @@ class CustomerSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "nip_number",
-            "website",
-            "payment_period",
-            "payment_type",
+            "vat_number",
             "email",
+            "website",
             "post_address",
             "created_at",
             "managers",
@@ -348,9 +365,66 @@ class TaskSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+    
+
+class InvoiceSerializer(serializers.ModelSerializer):
+    order_number = serializers.CharField(
+        source="order.number", required=False, allow_null=True
+    )
+    order_id = serializers.CharField(
+        source="order.id", required=False, allow_null=True
+    )
+    customer = serializers.CharField(
+        source="order.customer.name", required=False, allow_null=True
+    )
+
+    currency = serializers.CharField(
+        source="currency.short_name", required=False, allow_null=True
+    )
+
+    company = serializers.CharField(
+        source="company.name", required=False, allow_null=True
+    )
+
+    user = serializers.CharField(
+        source="user.username", required=False, allow_null=True
+    )
+    
+    class Meta:
+        model = Invoice
+        fields = [
+            'id',
+            'user',
+            'created_at',
+            'number',
+            'service_name',
+            'truck',
+            'trailer',
+            'loading_date',
+            'unloading_date',
+            'order_number',
+            'company',
+            'order_number',
+            'order_id',
+            'price',
+            'vat',
+            'total_price',
+            'currency',
+            'currency_rate',
+            'customer',
+            'invoicing_date',
+            'vat_date',
+            'due_date',
+            'send_date',
+            'accepted_date',
+            'payment_date',
+        ]
+        read_only_fields = ['id', 'number', 'created_at']
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    # vat = serializers.CharField(allow_blank=True, required=False)
+    vat = serializers.BooleanField()  # Ensure it accepts boolean values
     customer = serializers.CharField(
         source="customer.name", required=False, allow_null=True
     )
@@ -359,6 +433,9 @@ class OrderSerializer(serializers.ModelSerializer):
     )
     payment_type = serializers.CharField(
         source="payment_type.name", required=False, allow_null=True
+    )
+    currency = serializers.CharField(
+        source="currency.short_name", required=False, allow_null=True
     )
     truck = serializers.CharField(
         source="truck.plates", required=False, allow_null=True
@@ -384,6 +461,7 @@ class OrderSerializer(serializers.ModelSerializer):
     tasks = TaskSerializer(many=True, read_only=True)
     user = UserSerializer(many=False, read_only=True)
     manager = CustomerManagerSerializer(many=False, read_only=True)
+    invoice = InvoiceSerializer(many=False, read_only=True)
 
     class Meta:
         model = Order
@@ -394,9 +472,12 @@ class OrderSerializer(serializers.ModelSerializer):
             "order_number",
             "platform",
             "price",
+            "currency",
+            "vat",
             "market_price",
             "payment_type",
             "payment_period",
+            "invoice",
             "rout",
             "distance",
             "cargo_name",
@@ -421,9 +502,6 @@ class OrderSerializer(serializers.ModelSerializer):
             "tasks",
             "created_at",
         ]
-    
-    # def get_payment_type(self, obj):
-    #     return obj.payment_type
 
     def get_loading_address(self, obj):
         task = obj.tasks.filter(type__name="Loading").first()
@@ -511,11 +589,12 @@ class OrderSerializer(serializers.ModelSerializer):
         driver_data = validated_data.pop("driver", None)
         truck_data = validated_data.pop("truck", None)
         customer_data = validated_data.pop("customer", None)
-        print("Customer Data:", customer_data)
         customer_manager_data = validated_data.pop("customer_manager", None)
-        print("Customer Manager Data:", customer_manager_data)
         platform_data = validated_data.pop("platform", None)
         payment_type_data = validated_data.pop("payment_type", None)
+        currency_data = validated_data.pop("currency", None)
+
+        instance.vat = validated_data.get("vat", instance.vat)
         instance.order_number = validated_data.get(
             "order_number", instance.order_number
         )
@@ -578,5 +657,20 @@ class OrderSerializer(serializers.ModelSerializer):
             )
             instance.payment_type = payment_type_instance
 
+        if currency_data:
+            currency_instance, _ = Currency.objects.get_or_create(
+                short_name=currency_data["short_name"]
+            )
+            instance.currency = currency_instance
+
         instance.save()
         return instance
+
+
+
+class CurrencySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Currency
+        fields = "__all__"
+
+

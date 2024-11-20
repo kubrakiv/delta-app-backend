@@ -15,7 +15,8 @@ from base.models import (
     Customer,
     CustomerManager,
     Platform,
-    PaymentType
+    PaymentType,
+    Currency,
 )
 from user.models import Profile
 from base.serializers import (
@@ -97,10 +98,12 @@ def createOrder(request):
     driver_name = data.get("driver")
     platform_name = data.get("platform")
     payment_type_name = data.get("payment_type")
+    currency_name = data.get("currency")
 
     user = Profile.objects.get(id=user_id) if user_id else None
     platform = Platform.objects.filter(name=platform_name).first() if platform_name else None
     payment_type = PaymentType.objects.filter(name=payment_type_name).first() if payment_type_name else None
+    currency = Currency.objects.filter(short_name=currency_name).first() if currency_name else None
     customer = (
         Customer.objects.filter(name=customer_name).first() if customer_name else None
     )
@@ -118,6 +121,7 @@ def createOrder(request):
     data["user"] = user
     data["platform"] = platform
     data["payment_type"] = payment_type
+    data["currency"] = currency
     data["customer"] = customer
     data["customer_manager"] = customer_manager
     data["truck"] = truck
@@ -134,12 +138,19 @@ def createOrder(request):
 @api_view(["PUT"])
 def editOrder(request, pk):
     order = get_object_or_404(Order, id=pk)
-    print("Request data: ", request.data)
-    serializer = OrderSerializer(instance=order, data=request.data, partial=True)
+    data = request.data.copy()
+
+    print("Processed Data: ", data)
+
+    # Serialize and validate the data
+    serializer = OrderSerializer(instance=order, data=data, partial=True)
     if serializer.is_valid():
         serializer.save()
-    print("Serialized Data", serializer.data)
-    return Response(serializer.data)
+        print("Serializer Data: ", serializer.data)
+        return Response(serializer.data)
+    else:
+        print("Serializer Errors: ", serializer.errors)
+        return Response(serializer.errors, status=400)
 
 
 @api_view(["DELETE"])

@@ -7,6 +7,40 @@ from user.models import DriverProfile
 
 
 # Create your models here.
+
+class CompanyBank(models.Model):
+    name = models.CharField(max_length=255)
+    bank_address = models.CharField(max_length=250, null=True, blank=True)
+    iban_cz = models.CharField(max_length=50, null=True, blank=True)
+    iban_eur = models.CharField(max_length=50, null=True, blank=True)
+    account_number_cz = models.CharField(max_length=50, null=True, blank=True)
+    account_number_eur = models.CharField(max_length=50, null=True, blank=True)
+    swift_code = models.CharField(max_length=50, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+class Company(models.Model):
+    name = models.CharField(max_length=255)
+    nip_number = models.CharField(max_length=50, null=True, blank=True)
+    vat_number = models.CharField(max_length=50, null=True, blank=True)
+    phone = models.CharField(max_length=50, null=True, blank=True)
+    email = models.EmailField("Email Billing", max_length=255, null=True, blank=True)
+    website = models.CharField(max_length=250, null=True, blank=True)
+    post_address = models.CharField(max_length=250, null=True, blank=True)
+    bank = models.ForeignKey(
+        CompanyBank,
+        related_name="companies",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+    )
+    
+
+    def __str__(self):
+        return self.name
+    
 class Country(models.Model):
     name = models.CharField(max_length=25)
     short_name = models.CharField(max_length=3)
@@ -16,6 +50,17 @@ class Country(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+class Currency(models.Model):
+    name = models.CharField(max_length=25)
+    short_name = models.CharField(max_length=3)
+
+    class Meta:
+        verbose_name_plural = "Currencies"
+
+    def __str__(self):
+        return self.short_name
 
 
 class PointCompany(models.Model):
@@ -112,14 +157,7 @@ class Platform(models.Model):
 class Customer(models.Model):
     name = models.CharField(max_length=50)
     nip_number = models.CharField(max_length=50, null=True, blank=True)
-    payment_period = models.IntegerField(null=True, blank=True)
-    payment_type = models.ForeignKey(
-        PaymentType,
-        related_name="customers",
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
-    )
+    vat_number = models.CharField(max_length=50, null=True, blank=True)
     email = models.EmailField("Email Billing", max_length=255, null=True, blank=True)
     website = models.CharField(max_length=250, null=True, blank=True)
     post_address = models.CharField(max_length=250, null=True, blank=True)
@@ -193,10 +231,10 @@ class Order(models.Model):
         "Order number", max_length=20, null=True, blank=True
     )  # manual order number
     price = models.DecimalField(
-        "Order price", max_digits=6, decimal_places=2, null=True, blank=True
+        "Order price", max_digits=7, decimal_places=2, null=True, blank=True
     )
     market_price = models.DecimalField(
-        "Market price", max_digits=6, decimal_places=2, null=True, blank=True
+        "Market price", max_digits=7, decimal_places=2, null=True, blank=True
     )
     payment_type = models.ForeignKey(
         PaymentType,
@@ -205,6 +243,14 @@ class Order(models.Model):
         null=True,
         blank=True,
     )
+    currency = models.ForeignKey(
+        Currency,
+        related_name="orders",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    vat = models.BooleanField(default=False, null=True, blank=True, verbose_name="VAT", help_text="Value Added Tax")
     payment_period = models.IntegerField(null=True, blank=True)
     rout = models.CharField(max_length=10, null=True, blank=True)
     distance = models.IntegerField(null=True, blank=True)
@@ -425,3 +471,99 @@ class TaskStatusChange(models.Model):
 
     def __str__(self):
         return f"Task #{self.task.id}: {self.task.title} - {self.status.name} - {self.start_date} {self.start_time}"
+
+
+class Invoice(models.Model):
+    number = models.CharField(max_length=20)  # auto-incremented number
+    service_name = models.CharField(max_length=255, null=True, blank=True)
+    truck = models.CharField(max_length=255, null=True, blank=True)
+    trailer = models.CharField(max_length=55, null=True, blank=True)
+    loading_date = models.CharField(max_length=55, null=True, blank=True)
+    unloading_date = models.CharField(max_length=55, null=True, blank=True)
+    order_number = models.CharField(
+        "Order number", max_length=20, null=True, blank=True
+    )  # manual order number
+    company = models.ForeignKey(
+        Company,
+        related_name="invoices",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    order = models.OneToOneField(
+        Order, related_name="invoice", on_delete=models.CASCADE
+    )
+    price = models.DecimalField(
+        "Invoice price", max_digits=10, decimal_places=2, null=True, blank=True
+    )
+    vat = models.DecimalField(
+        "VAT", max_digits=10, decimal_places=2, null=True, blank=True
+    )
+    total_price = models.DecimalField(
+        "Total price", max_digits=10, decimal_places=2, null=True, blank=True
+    )
+    currency = models.ForeignKey(
+        Currency,
+        related_name="invoices",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    currency_rate = models.DecimalField(
+        "Currency rate", max_digits=6, decimal_places=3, null=True, blank=True
+    )
+    customer = models.ForeignKey(
+        Customer,
+        related_name="invoices",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+
+    invoicing_date = models.DateField(null=True, blank=True)
+    vat_date = models.DateField(null=True, blank=True)
+    due_date = models.DateField(null=True, blank=True)
+    send_date = models.DateField(null=True, blank=True)
+    accepted_date = models.DateField(null=True, blank=True)
+    payment_date = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="invoices",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+
+    def save(self, *args, **kwargs):
+        if not self.number:
+            # Get the current year
+            current_year = timezone.now().year
+
+            # Find the last invoice number for the current year
+            last_invoice = (
+                Invoice.objects.annotate(
+                    number_int=Cast(
+                        Substr("number", 3, 9), IntegerField()
+                    )
+                )
+                .filter(
+                    number__isnull=False,
+                    created_at__year=current_year,
+                )
+                .order_by("-number_int")
+                .first()
+            )
+
+            if last_invoice and last_invoice.number_int:
+                new_number = last_invoice.number_int + 1
+            else:
+                new_number = 1
+
+            # Format the number field with DL prefix and zero-padded 9-digit number
+            self.number = f"DL{str(new_number).zfill(9)}"
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Invoice number: {self.number}, created at: {str(self.created_at)[0:19]}"

@@ -23,6 +23,10 @@ urlpatterns = [
     path("api/platforms/", include("base.urls.platform_urls")),
     path("api/payment-types/", include("base.urls.payment_types_urls")),
     path("api/task-types/", include("base.urls.task_types_urls")),
+    path("api/send-email/", include("base.urls.send_email_urls")),
+    path("api/company/", include("base.urls.company_urls")),
+    path("api/currencies/", include("base.urls.currency_urls")),
+    path("api/invoices/", include("base.urls.invoice_urls")),
     
     path("api/roles/", include("user.urls.role_urls")),
     path("api/users/", include("user.urls.user_urls")),

@@ -48,19 +48,24 @@ def createTask(request):
         order_number = data.get("order")
         task_type_name = data.get("type")
 
+        start_time = data.get("start_time")
+        if start_time == "":
+            start_time = None
+
+        end_time = data.get("end_time")
+        if end_time == "":
+            end_time = None
+
         driver = DriverProfile.objects.filter(full_name=driver_name).first()
         truck = Truck.objects.filter(plates=truck_plate).first()
         task_type = TaskType.objects.filter(name=task_type_name).first()
         order = Order.objects.filter(number=order_number).first()
         point = Point.objects.filter(id=data.get("point_details", {}).get("id")).first()
 
-        print("Point")
-        print(point)
-
         task = Task.objects.create(
             title=data.get("title"),
             start_date=data.get("start_date"),
-            start_time=data.get("start_time"),
+            start_time=start_time,
             truck=truck,
             driver=driver,
             type=task_type,

@@ -7,4 +7,5 @@ urlpatterns = [
     path("upload/", views.uploadDocuments, name="upload-documents"),
     path("<str:pk>/order/", views.getDocuments, name="documents"),
     path("<str:pk>/", views.getDocument, name="document"),
+    path("delete/<str:pk>/", views.deleteDocument, name="delete-document"),
 ]

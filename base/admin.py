@@ -18,6 +18,10 @@ from .models import (
     Platform,
     DriverAssignment,
     TrailerAssignment,
+    Currency,
+    CompanyBank,
+    Company,
+    Invoice,
 )
 
 # Register your models here.
@@ -34,6 +38,10 @@ admin.site.register(FileType)
 admin.site.register(Platform)
 admin.site.register(DriverAssignment)
 admin.site.register(TrailerAssignment)
+admin.site.register(Currency)
+admin.site.register(CompanyBank)
+admin.site.register(Company)
+admin.site.register(Invoice)
 
 
 class TaskStatusChangeAdmin(admin.ModelAdmin):
