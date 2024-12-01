@@ -67,7 +67,7 @@ SIMPLE_JWT = {
      # It will work instead of the default serializer(TokenObtainPairSerializer).
     "TOKEN_OBTAIN_SERIALIZER": "my_app.serializers.MyTokenObtainPairSerializer",
 
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=30),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=90),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
@@ -148,7 +148,6 @@ WSGI_APPLICATION = "backend.wsgi.application"
 # }
 
 
-###  нада подключить джангу тут
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', 
@@ -226,6 +225,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "user.Profile"
 
+# This is for production only
 # HTTPS settings
 # SESSION_COOKIE_SECURE=True
 # CSRF_COOKIE_SECURE=True

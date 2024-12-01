@@ -50,6 +50,7 @@ def createTruck(request):
         end_date=end_date,
         entry_mileage=data.get("entry_mileage"),
         price=price,
+        gps_id=data.get("gps_id"),
     )
     serializer = TruckSerializer(truck, many=False)
     return Response(serializer.data)
@@ -135,6 +136,7 @@ def updateTruck(request, pk):
     truck.end_date = end_date
     truck.entry_mileage = data.get("entry_mileage")
     truck.price = price
+    truck.gps_id = data.get("gps_id")
 
     truck.save()
     serializer = TruckSerializer(instance=truck, partial=True)

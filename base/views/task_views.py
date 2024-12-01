@@ -56,6 +56,14 @@ def createTask(request):
         if end_time == "":
             end_time = None
 
+        start_date = data.get("start_date")
+        if start_date == "":
+            start_date = None
+
+        end_date = data.get("end_date")
+        if end_date == "":
+            end_date = None
+
         driver = DriverProfile.objects.filter(full_name=driver_name).first()
         truck = Truck.objects.filter(plates=truck_plate).first()
         task_type = TaskType.objects.filter(name=task_type_name).first()
@@ -64,8 +72,10 @@ def createTask(request):
 
         task = Task.objects.create(
             title=data.get("title"),
-            start_date=data.get("start_date"),
+            start_date=start_date,
+            end_date=end_date,
             start_time=start_time,
+            end_time=end_time,
             truck=truck,
             driver=driver,
             type=task_type,
@@ -83,11 +93,25 @@ def createTask(request):
 def editTask(request, pk):
     task = Task.objects.get(id=pk)
     print(task)
-    serializer = TaskSerializer(instance=task, data=request.data, partial=True)
+    # Convert empty strings to None for 'end_date' and 'end_time'
+    data = request.data.copy()
+    if data.get('end_date') == '':
+        data['end_date'] = None
+    if data.get('end_time') == '':
+        data['end_time'] = None
+    if data.get('start_time') == '':
+        data['start_time'] = None
+    if data.get('start_date') == '':
+        data['start_date'] = None
+
+
+
+    serializer = TaskSerializer(instance=task, data=data, partial=True)
     if serializer.is_valid():
         serializer.save()
     else: 
         print(serializer.errors)
+        
     print(serializer.data)
     return Response(serializer.data)
 
