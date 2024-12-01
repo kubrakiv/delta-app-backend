@@ -76,6 +76,7 @@ class TruckSerializer(serializers.ModelSerializer):
             "end_date",
             "entry_mileage",
             "price",
+            "gps_id",
             "trailer",
             "driver",
             "driver_details",

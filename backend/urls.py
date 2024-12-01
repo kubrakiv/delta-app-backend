@@ -7,7 +7,9 @@ from django.views.generic import TemplateView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    # This is for production
     # path("", TemplateView.as_view(template_name="index.html")),
+
     path("api/csrf-token/", include("base.urls.csrf_token_urls")),
     path("api/orders/", include("base.urls.order_urls")),
     path("api/tasks/", include("base.urls.task_urls")),
@@ -32,6 +34,7 @@ urlpatterns = [
     path("api/users/", include("user.urls.user_urls")),
     path("api/driver-profiles/", include("user.urls.driver_profile_urls")),
 
+    # This is for production
     # Catch-all URL pattern for React app
     # re_path(r'^.*$', TemplateView.as_view(template_name="index.html")),
 ]

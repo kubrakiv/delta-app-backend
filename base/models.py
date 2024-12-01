@@ -94,6 +94,7 @@ class Truck(models.Model):
     year = models.IntegerField(null=True, blank=True)
     entry_mileage = models.CharField(max_length=50, null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    gps_id = models.CharField(max_length=50, null=True, blank=True)
     
     driver = models.ForeignKey(
         DriverProfile,
