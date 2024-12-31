@@ -12,6 +12,7 @@ urlpatterns = [
 
     path("api/csrf-token/", include("base.urls.csrf_token_urls")),
     path("api/orders/", include("base.urls.order_urls")),
+    path("api/order-statuses/", include("base.urls.order_statuses_urls")),
     path("api/tasks/", include("base.urls.task_urls")),
     path("api/points/", include("base.urls.point_urls")),
     path("api/trucks/", include("base.urls.truck_urls")),

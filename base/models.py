@@ -226,6 +226,18 @@ class Point(models.Model):
             return f"{self.id} {self.created_at}"
 
 
+class OrderStatus(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Order Statuses"
+
+    def __str__(self):
+        return self.name
+
+
 class Order(models.Model):
     number = models.CharField(max_length=20)  # auto-incremented number
     order_number = models.CharField(
@@ -293,9 +305,23 @@ class Order(models.Model):
     driver = models.ForeignKey(
         DriverProfile, related_name="orders", on_delete=models.SET_NULL, null=True, blank=True
     )
+    current_status = models.ForeignKey(OrderStatus, on_delete=models.SET_NULL, null=True, related_name="current_orders")
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def set_status(self, new_status):
+        """
+        Update the current_status field and add an entry to status_history.
+        """
+        if self.current_status != new_status:
+            # Update current_status
+            self.current_status = new_status
+            self.save()
+
     def save(self, *args, **kwargs):
+        if not self.id and not self.current_status:
+            default_status, _ = OrderStatus.objects.get_or_create(name='created', defaults={'description': 'Order created.'})
+            self.current_status = default_status
+
         if not self.number:
             # Calculate the auto-increasing number for the month
             current_month = timezone.now().month
@@ -330,6 +356,23 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order number: {self.number}, created at: {str(self.created_at)[0:19]}"
+    
+
+class OrderStatusHistory(models.Model):
+    order = models.ForeignKey(
+        Order, related_name="status_history", on_delete=models.CASCADE
+    )
+    status = models.ForeignKey(
+        OrderStatus, related_name="status_history", on_delete=models.CASCADE       
+    )
+    started_at = models.DateTimeField(null=True, blank=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        started_at_str = self.started_at.strftime("%Y-%m-%d %H:%M") if self.started_at else "N/A"
+        ended_at_str = self.ended_at.strftime("%Y-%m-%d %H:%M") if self.ended_at else "present"
+        return f"{self.order.number} with status {self.status} from {started_at_str} to {ended_at_str}"
 
 
 class FileType(models.Model):

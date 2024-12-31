@@ -22,6 +22,8 @@ from .models import (
     CompanyBank,
     Company,
     Invoice,
+    OrderStatus,
+    OrderStatusHistory,
 )
 
 # Register your models here.
@@ -42,6 +44,16 @@ admin.site.register(Currency)
 admin.site.register(CompanyBank)
 admin.site.register(Company)
 admin.site.register(Invoice)
+
+admin.site.register(OrderStatusHistory)
+
+
+class OrderStatusAdmin(admin.ModelAdmin):
+    list_display = ["id", "name", "description"]
+    readonly_fields = ["id"]
+    fields = ["id", "name", "description"]
+
+admin.site.register(OrderStatus, OrderStatusAdmin)
 
 
 class TaskStatusChangeAdmin(admin.ModelAdmin):

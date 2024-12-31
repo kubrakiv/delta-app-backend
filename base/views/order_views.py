@@ -27,7 +27,6 @@ from base.serializers import (
 from datetime import datetime
 
 
-
 # ORDERS VIEWS
 
 
