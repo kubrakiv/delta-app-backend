@@ -21,6 +21,7 @@ from .models import (
     CompanyBank,
     Company,
     Invoice,
+    OrderStatusHistory,
 )
 from user.models import (
     DriverProfile
@@ -423,6 +424,13 @@ class InvoiceSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'number', 'created_at']
 
 
+class OrderStatusHistorySerializer(serializers.ModelSerializer):
+    status = serializers.CharField(source="status.name", required=False, allow_null=True)
+    class Meta:
+        model = OrderStatusHistory
+        fields = ['status', 'started_at', 'ended_at', 'is_active']
+
+
 class OrderSerializer(serializers.ModelSerializer):
     # vat = serializers.CharField(allow_blank=True, required=False)
     vat = serializers.BooleanField()  # Ensure it accepts boolean values
@@ -447,6 +455,7 @@ class OrderSerializer(serializers.ModelSerializer):
     customer_manager = serializers.CharField(
         source="customer_manager.full_name", required=False, allow_null=True
     )
+    
 
     loading_address = serializers.SerializerMethodField()
     unloading_address = serializers.SerializerMethodField()
@@ -458,11 +467,13 @@ class OrderSerializer(serializers.ModelSerializer):
     unloading_end_date = serializers.SerializerMethodField()
     unloading_start_time = serializers.SerializerMethodField()
     unloading_end_time = serializers.SerializerMethodField()
+    current_status = serializers.SerializerMethodField()
     # payment_type = serializers.SerializerMethodField()
     tasks = TaskSerializer(many=True, read_only=True)
     user = UserSerializer(many=False, read_only=True)
     manager = CustomerManagerSerializer(many=False, read_only=True)
     invoice = InvoiceSerializer(many=False, read_only=True)
+    status_history = OrderStatusHistorySerializer(many=True, read_only=True)
 
     class Meta:
         model = Order
@@ -501,8 +512,20 @@ class OrderSerializer(serializers.ModelSerializer):
             "unloading_start_time",
             "unloading_end_time",
             "tasks",
+            "current_status",
+            "status_history",
             "created_at",
         ]
+
+    def get_current_status(self, obj):
+        # Filter for the active status
+        status = obj.status_history.filter(is_active=True).first()
+        # OR get the latest status
+        # status = obj.status_history.order_by('-started_at').first()
+        
+        if status:
+            return OrderStatusHistorySerializer(status).data
+        return None
 
     def get_loading_address(self, obj):
         task = obj.tasks.filter(type__name="Loading").first()
